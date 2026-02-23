@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Comercial - Cádiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+    :root {
+        --bg-deep: #0a0e14;
+        --bg-card: #141b26;
+        --corporate-blue: #0056b3; 
+        --soft-blue: #3a86ff;
+        --success-green: #22c55e;
+        --text-main: #ffffff;
+        --text-dim: #94a3b8;
+        --border: #2d3748;
+    }
+
+    body {
+        font-family: 'Outfit', sans-serif;
+        background-color: var(--bg-deep);
+        color: var(--text-main);
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .dashboard-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr; /* Diseño de dos columnas */
+        gap: 20px;
+        padding: 20px;
+        flex-grow: 1;
+        height: calc(100vh - 40px);
+    }
+
+    .card {
+        background: var(--bg-card);
+        border-radius: 30px;
+        padding: 30px;
+        border: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        position: relative;
+    }
+
+    .title-section {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: var(--soft-blue);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 15px;
+    }
+
+    /* ESTADO OBJETIVO CUMPLIDO */
+    .goal-reached .big-number, .goal-reached .main-title {
+        color: var(--success-green) !important;
+        -webkit-text-fill-color: var(--success-green) !important;
+    }
+    .goal-reached .progress-fill {
+        background: var(--success-green) !important;
+        box-shadow: 0 0 30px rgba(34, 197, 94, 0.5) !important;
+    }
+
+    /* RANKING */
+    #ranking-list { overflow-y: auto; padding-right: 10px; }
+    #ranking-list::-webkit-scrollbar { width: 6px; }
+    #ranking-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+    .ranking-item {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 12px 20px; background: rgba(255,255,255,0.03);
+        border-radius: 15px; margin-bottom: 10px; border: 1px solid transparent;
+    }
+    .ranking-item:nth-child(1) { 
+        background: linear-gradient(90deg, rgba(0, 86, 179, 0.3), rgba(20, 27, 38, 1)); 
+        border: 1px solid var(--corporate-blue);
+    }
+    .name { font-weight: 500; font-size: 1.1rem; color: var(--text-dim); }
+    .val { font-weight: 800; color: var(--text-main); font-size: 1.4rem; }
+
+    /* PANEL CENTRAL CÁDIZ */
+    .center-card { align-items: center;  text-align: center; }
+    .main-title { font-size: 3.5rem; font-weight: 800; margin: 0; letter-spacing: 2px; }
+    .big-number { 
+        font-size: 16rem; font-weight: 900; line-height: 0.8; margin: 20px 0;
+        background: linear-gradient(to bottom, #fff, #94a3b8);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    
+    .progress-box { width: 85%; margin-top: 20px; }
+    .progress-bg { 
+        background: #0a0e14; height: 35px; border-radius: 20px; 
+        overflow: hidden; margin: 15px 0; border: 1px solid var(--border);
+    }
+    .progress-fill { 
+        background: linear-gradient(90deg, var(--corporate-blue), var(--soft-blue), #60a5fa); 
+        height: 100%; width: 0%; transition: width 1.5s ease-in-out;
+    }
+
+    .goal-display {
+        padding: 15px 40px; background: rgba(58, 134, 255, 0.1);
+        border-radius: 20px; border: 2px dashed var(--soft-blue); display: inline-block;
+        margin-top: 20px;
+    }
+    .goal-value { font-size: 3.5rem; font-weight: 900; color: #fff; margin-left: 15px; }
+
+</style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <div class="card">
+        <div class="title-section">Ranking Cádiz</div>
+        <div id="ranking-list"></div>
+    </div>
+
+    <div id="container-total" class="card center-card">
+        <img src="banner Selectra.jpg" alt="Selectra Banner" style="width: 100%; max-width: 400px; border-radius: 20px; margin-bottom: 20px;">
+        <h1 class="main-title">CÁDIZ</h1>
+        <div class="big-number" id="total-val">0</div>
+        
+        <div class="progress-box">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; font-weight: 800;">
+                <span style="font-size: 1.2rem; color: var(--text-dim);">RENDIMIENTO DEL EQUIPO</span>
+                <span id="percent-total" style="font-size: 3rem; color: var(--soft-blue);">0%</span>
+            </div>
+            <div class="progress-bg">
+                <div id="bar-total" class="progress-fill"></div>
+            </div>
+            <div class="goal-display">
+                <span style="color: var(--text-dim); font-weight: 600; font-size: 1.2rem;">OBJETIVO:</span>
+                <span class="goal-value" id="goal-total">0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// RECUERDA: Cambiar este ID por el del Sheet de Cádiz
+const sheetID = '1vZsOCh-KGMb2FaJiWjOhZXEIW7Tchj6hmIYi4OJdS58'; 
+const url = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=csv&gid=0`;
+
+async function updateDashboard() {
+    try {
+        const response = await fetch(url + '&t=' + new Date().getTime());
+        if (!response.ok) return;
+
+        const csv = await response.text();
+        const rows = csv.split(/\r?\n/).map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
+
+        if (rows.length < 2) return;
+
+        // SUMA DE LOS 30 COMERCIALES (Fila 2 a 31 -> Índice 1 a 30)
+        let totalCadiz = 0;
+        let comerciales = [];
+        
+        for (let i = 1; i <= 30; i++) {
+            if (rows[i]) {
+                let nombre = rows[i][1] ? rows[i][1].replace(/"/g, "").trim() : "";
+                let valor = parseInt(rows[i][2]) || 0;
+                
+                if(nombre !== "" && nombre !== "COMERCIALES") {
+                    totalCadiz += valor;
+                    comerciales.push({ nombre, valor });
+                }
+            }
+        }
+
+        // 1. ACTUALIZAR RANKING
+        comerciales.sort((a, b) => b.valor - a.valor);
+        let rankingHtml = '';
+        comerciales.forEach((c, index) => {
+            rankingHtml += `<div class="ranking-item">
+                <span class="name">#${index+1} ${c.nombre}</span>
+                <span class="val">${c.valor}</span>
+            </div>`;
+        });
+        document.getElementById('ranking-list').innerHTML = rankingHtml;
+
+        // 2. ACTUALIZAR PANEL CÁDIZ
+        // Objetivo: Supongamos que está en H2 (Índice 1, Columna 7)
+        const goalCadiz = parseInt(rows[1][7]) || 1; 
+        
+        document.getElementById('total-val').innerText = totalCadiz;
+        document.getElementById('goal-total').innerText = goalCadiz;
+        
+        let porcentaje = Math.round((totalCadiz / goalCadiz) * 100);
+        document.getElementById('percent-total').innerText = porcentaje + '%';
+        document.getElementById('bar-total').style.width = Math.min(porcentaje, 100) + '%';
+        
+        if (totalCadiz >= goalCadiz) {
+            document.getElementById('container-total').classList.add('goal-reached');
+        } else {
+            document.getElementById('container-total').classList.remove('goal-reached');
+        }
+
+    } catch (e) { console.error("Error cargando Cádiz:", e); }
+}
+
+setInterval(updateDashboard, 3000);
+updateDashboard();
+</script>
+</body>
+</html>
